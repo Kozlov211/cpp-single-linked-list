@@ -80,7 +80,7 @@ private:
 		// Оператор сравнения итераторов (в роли второго аргумента итератор)
 		// Два итератора равны, если они ссылаются на один и тот же элемент списка либо на end()
 		[[nodiscard]] bool operator==(const BasicIterator<Type>& rhs) const noexcept {
-			return ((&(this->node_->value) == &(rhs.node_->value) || !(this->node_->next_node) && !(rhs.node_->next_node)) ? true : false); 
+			return (this->node_ == rhs.node_ ? true : false); 
 		}
 
 		// Оператор проверки итераторов на неравенство
@@ -93,6 +93,7 @@ private:
 		// Возвращает ссылку на самого себя
 		// Инкремент итератора, не указывающего на существующий элемент списка, приводит к неопределённому поведению
 		BasicIterator& operator++() noexcept {
+			assert(node_ != nullptr);
 			this->node_ = this->node_->next_node;
 			return *this;
 		}
@@ -111,6 +112,7 @@ private:
 		// Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
 		// приводит к неопределённому поведению
 		[[nodiscard]] reference operator*() const noexcept {
+			assert(node_ != nullptr);
 			return this->node_->value;
 		}
 
@@ -118,6 +120,7 @@ private:
 		// Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
 		// приводит к неопределённому поведению
 		[[nodiscard]] pointer operator->() const noexcept {
+			assert(node_ != nullptr);
 			Type* ptr_value = &(this->node_->value);
 			return ptr_value;
 		}
@@ -130,30 +133,22 @@ public:
 		const_end_ = ConstIterator(head_.next_node);
 	}
 
-	template<typename type>
-	vector<Type> ReverseList(const type& linked_list) {
-		vector<Type> tmp;
-		tmp.reserve(linked_list.size());
-		for (auto value : linked_list) {
-		    tmp.push_back(value);
-		}
-		return tmp;
-	}
-	
 	SingleLinkedList(std::initializer_list<Type> values) {
-		vector<Type> tmp = ReverseList(values);
-		for(auto it = tmp.rbegin(); it != tmp.rend(); ++it) {
-		    PushFront(*it);
+		Iterator it = before_begin();
+		for (auto value : values) {
+			InsertAfter(it, value);
+			it++;
 		}
 	}
 
 	SingleLinkedList(const SingleLinkedList& other) {
 		assert(size_ == 0 && head_.next_node == nullptr);
 		SingleLinkedList tmp;
-		vector<Type> tmp_vector = ReverseList(other);
-		for(auto it = tmp_vector.rbegin(); it != tmp_vector.rend(); ++it) {
-		    tmp.PushFront(*it);
-		}
+		Iterator it = before_begin();
+		for (auto value : other) {
+			InsertAfter(it, value);
+			it++;
+		}	
 		swap(tmp);
 	}
 
@@ -167,16 +162,15 @@ public:
 
 	// Обменивает содержимое списков за время O(1)
 	void swap(SingleLinkedList& other) noexcept {
-		Node* temp_node = head_.next_node;
+		swap(head_.next_node, other.head_.next_node);
 		size_t temp_size = size_;
-		head_.next_node = other.head_.next_node;
 		size_ = other.size_;
-		other.head_.next_node = temp_node;
 		other.size_ = temp_size;
 		
 	}
 
 	void PopFront() noexcept {
+		assert(head_.next_node != nullptr);
 		Node* tmp = head_.next_node;
 		head_.next_node = tmp->next_node;
 		delete tmp;
@@ -285,6 +279,7 @@ public:
 	// Возвращает итератор на вставленный элемент
 	// Если при создании элемента будет выброшено исключение, список останется в прежнем состоянии
 	Iterator InsertAfter(ConstIterator pos, const Type& value) {     
+		assert(pos.node_ != nullptr);
 		Node* new_node = new Node(value, pos.node_->next_node);
 		pos.node_->next_node = new_node;
 		++size_;
@@ -294,6 +289,7 @@ public:
 	//Удаляет элемент, следующий за pos.
 	// Возвращает итератор на элемент, следующий за удалённым
 	Iterator EraseAfter(ConstIterator pos) noexcept {
+		assert(pos.node_ != nullptr);
 		Node* delete_node = pos.node_->next_node;
 		pos.node_->next_node = delete_node->next_node;
 		--size_;
