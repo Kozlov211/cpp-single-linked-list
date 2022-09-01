@@ -51,7 +51,4 @@ void IsEmpty() {
     list.IsEmpty();
 }
 
-
-
-
 } // namespace examples_use_single_linked_list
