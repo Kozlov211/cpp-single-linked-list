@@ -1,6 +1,6 @@
 
 ## Description
-The program implements the list'a functionality from the STL (https://en.cppreference.com/w/cpp/container/list). 
+The program implements the list functionality from the STL (https://en.cppreference.com/w/cpp/container/list). 
 
 Used forward iterator.
 
