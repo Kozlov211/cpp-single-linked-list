@@ -8,7 +8,6 @@
 #include <vector>
 #include <utility>
 
-
 namespace single_linked_list {
 
 template <typename Type>
